@@ -1,4 +1,5 @@
 // https://editor.p5js.org/LisaSQuinley/sketches/luBTeLvla
+// using Justin Bakse's tutorial to work on in first class and to experiment with (Web Editor Quick Start), turned into this ASWD Keys Sketch
 
 let shared;
 

@@ -1,0 +1,15 @@
+html, body {
+    margin: 0;
+    padding: 0;
+  }
+  canvas {
+    display: block;
+  }
+  
+  .p5party_info {
+    position: fixed;
+    top: 0;
+    left: 1000px;
+    color: black;
+    padding: 10px;
+  }

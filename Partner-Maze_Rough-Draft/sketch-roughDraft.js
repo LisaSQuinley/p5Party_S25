@@ -1,34 +1,44 @@
-// https://editor.p5js.org/LisaSQuinley/sketches/Psyl9HDX9
-// this was created from the ASWD Keys Sketch
+// https://editor.p5js.org/LisaSQuinley/sketches/RsfbtTvUj (base)
+// this version sets up a long screen with trails of circles, but after a few times of sharing, it seems only one person has full control and whose trail is visible
+
 
 let shared;
+let screenHeight = 500;
+let screenWidth = 1000;
 
 function preload() {
+    if (!shared) {
+      // partyConnect(server, appName, [roomName], [callback])
         partyConnect(
             "wss://demoserver.p5party.org", 
-            "pink-panther-painting"
+            "Partner-Maze-Game",
+            "Room 1"
         );
+    }
   shared = partyLoadShared("globals");
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
 
-  shared.speed = 10;
+  createCanvas(screenWidth, screenHeight);
+  background(248);
   
-  shared.x = shared.x || 0; // set shared.x to 0, but only if it is not already defined
-  shared.y = shared.y || 0;
+  shared.speed = 3;
   
-  shared.size = shared.size || 100;
+  shared.x = shared.x || 20; // set shared.x to 0, but only if it is not already defined
+  shared.y = shared.y || 20;
+  
+  shared.size = shared.size || 15;
   
   shared.color = color(random(255), random(255), random(255)).toString();
   
   shared.trail = shared.trail || [];
-
+/*
   fill("#cccccc");
   textAlign(CENTER, CENTER);
   textSize(30);
   text("Use your arrow keys or WASD to fill the screen before the other players do!", windowWidth/2, windowHeight/2);
+  */
 }
 
 function mousePressed() {
@@ -36,7 +46,7 @@ function mousePressed() {
   shared.x = mouseX;
   shared.y = mouseY;
   
-  shared.size = random(20,100);
+  // shared.size = random(20,100);
   
   shared.color = color(random(255), random(255), random(255)).toString();
 
@@ -47,6 +57,7 @@ function mousePressed() {
 
 function draw() {
 
+
   // Draw the entire trail
   for (let i = 0; i < shared.trail.length; i++) {
     let t = shared.trail[i];
@@ -54,18 +65,19 @@ function draw() {
     noStroke();
     ellipse(t.x, t.y, t.size);
   }
+
   
   if (shared.x < 0) {
     shared.x = 0 + shared.size;
   }
-  if (shared.x > windowWidth) {
-    shared.x = windowWidth - shared.size;
+  if (shared.x > screenWidth) {
+    shared.x = screenWidth - shared.size;
   }
     if (shared.y < 0) {
     shared.y = 0 + shared.size;
   }
-  if (shared.y > windowHeight) {
-    shared.y = windowHeight - shared.size;
+  if (shared.y > screenHeight) {
+    shared.y = screenHeight - shared.size;
   }
   
   if (keyIsDown(UP_ARROW) || keyIsDown(87)) { // used ASCII 87 for W
@@ -86,17 +98,13 @@ function draw() {
 
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
-
 function keyPressed() {
     if (key === 'r') {
         // Clear the shared data to reset the game state
         shared.trail = [];
-        shared.x = 0;
-        shared.y = 0;
-        shared.size = 100;
+        shared.x = 20;
+        shared.y = 20;
+        shared.size = 15;
         shared.color = color(random(255), random(255), random(255)).toString();
 
         // Reload the page to reset the environment fully
