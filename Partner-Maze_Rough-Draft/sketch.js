@@ -10,7 +10,7 @@ function preload() {
       // partyConnect(server, appName, [roomName], [callback])
         partyConnect(
             "wss://demoserver.p5party.org", 
-            "Partner-Maze-Game",
+            "Partner Maze Game Rough Draft",
             "main"
         );
     }
