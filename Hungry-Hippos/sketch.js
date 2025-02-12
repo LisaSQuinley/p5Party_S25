@@ -1,5 +1,5 @@
-// https://editor.p5js.org/LisaSQuinley/sketches/qdJEEl1ZX
-// Hippo Grazing which is a sketch based off the Partner Maze one I created previously
+// https://editor.p5js.org/LisaSQuinley/sketches/J72QvfYCM
+// Hippo Grazing which is a sketch based off the Hippo Grazing one I created previously
 // ChatGPT helped out with cleaning up a lot of my code
 
 let shared;
