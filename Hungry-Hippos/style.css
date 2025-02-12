@@ -1,0 +1,14 @@
+html, body {
+    margin: 0;
+    padding: 0;
+  }
+  canvas {
+    display: block;
+  }
+  
+  .p5party_info {
+    font-family: "Lexend Deca", serif;
+    left: 1000px;
+    color: black;
+    padding: 10px;
+  }
