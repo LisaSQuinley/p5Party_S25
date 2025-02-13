@@ -12,8 +12,7 @@ let watermelonCount = 0;
 let showTitleScreen = true;
 let crunchSounds = [];
 let crunchFiles = ['Crunch-1.wav', 'Crunch-2.wav', 'Crunch-3.wav', 'Crunch-4.wav'];
-const speed = 50;
-const size = 50;
+
 let me, guests;
 
 let keyPressedStatus = {
@@ -29,7 +28,7 @@ let yScale = 0.02;
 let gap = 10; // Set a fixed gap value
 let offset = 0; // Set a fixed offset value
 
- let fruits = [];
+let fruits = [];
 
 function preload() {
     // partyConnect(server, appName, [roomName], [callback])
@@ -39,21 +38,9 @@ function preload() {
       "Plot of Land"
     );
   guests = partyLoadGuestShareds();
-  shared = partyLoadShared("shared", { 
-    // fruits: [], 
-    sharedFruits: [],
-    });
-  me = partyLoadMyShared({ 
-    hippoImg: "",
-    x: 975, 
-    y: 975, 
-    bananaCount: 0,
-    watermelonCount: 0
-  });
+  me = partyLoadMyShared({ score: 0 });
+  shared = partyLoadShared("globals");
   hippo1 = loadImage("hippo-01.png");
-  hippo2 = loadImage("hippo-02.png");
-  hippo3 = loadImage("hippo-03.png");
-  hippo4 = loadImage("hippo-04.png");
   banana = loadImage("banana.png");
   watermelon = loadImage("watermelon.png");
   logo = loadImage("Logo.png");
@@ -64,161 +51,6 @@ function preload() {
     crunchSounds[i] = loadSound(crunchFiles[i]);
   }
 }
-
-
-function setup() {
-  partyToggleInfo(true);
-
-  createCanvas(screenWidth, screenHeight);
-  background(248);
-
-//  speed = 50; // Set the distance per key press (distance per step)
-//  me.x = me.x || 975;
-//  me.y = me.y || 975;
-//  size = size || 50;
-
-  generateGreenNoiseBackground();
-  if (partyIsHost()) {
-  // call generateFruits function
-  fruitGeneration();
-}
-
-}
-
-function draw() {
-  if (showTitleScreen) {
-    // Display the title screen
-    displayTitleScreen();
-  } else if (shared.sharedFruits.length === 0) {
-    // If all fruits are collected, display the game over screen
-    displayGameOverScreen();
-  } else {
-    // Game logic
-
-    // Keep updating the background with noise
-    generateGreenNoiseBackground();
-
-    // Draw the current hippo image at the current position
-    imageMode(CENTER);
-    image(hippo1, me.x, me.y, size, size);
-
-    // Constrain the hippo within the screen bounds
-    if (me.x < 0) {
-      me.x = 0 + size / 2;
-    }
-    if (me.x > screenWidth) {
-      me.x = screenWidth - size / 2;
-    }
-    if (me.y < 0) {
-      me.y = 0 + size / 2;
-    }
-    if (me.y > screenHeight) {
-      me.y = screenHeight - size / 2;
-    }
-    
-    drawFruits();
-
-    // Clear the area where the score is being displayed
-    fill(250, 200, 100, 200); // Use the same color as the background
-    rect(10, 10, 185, 55, 5);
-
-    // Set the font for the fruit name (e.g., Grandstander)
-    textAlign(LEFT, TOP);
-    textFont("Grandstander");
-    textSize(20);
-    fill(53, 94, 59); // Set the color to black
-    text("Bananas:", 15, 15); // Display "Bananas"
-
-    // Set the font for the count (e.g., Grandstander)
-    textAlign(LEFT, TOP);
-    textFont("Grandstander");
-    textSize(20);
-    fill(104, 23, 100); // Set the color to black
-    text(bananaCount, 163, 15); // Display the banana count
-
-    // Set the font for the fruit name (e.g., Grandstander)
-    textAlign(LEFT, TOP);
-    textFont("Grandstander");
-    textSize(20);
-    fill(53, 94, 59); // Set the color to black
-    text("Watermelons:", 15, 42.5); // Display "Watermelons"
-
-    // Set the font for the count (e.g., Grandstander)
-    textAlign(LEFT, TOP);
-    textFont("Grandstander");
-    textSize(20);
-    fill(104, 23, 100); // Set the color to black
-    text(watermelonCount, 163, 42.5); // Display the watermelon count
-  }
-}
-
-function drawFruits() {
-      // Draw the fruits (no longer storing image inside the fruit object)
-      for (let i = shared.sharedFruits.length - 1; i >= 0; i--) {
-        const currentFruit = shared.sharedFruits[i];
-        let fruitImage
-        if (currentFruit.fruitType === "banana") {
-          fruitImage = banana;
-        }
-        else if (currentFruit.fruitType === "watermelon") {
-          fruitImage = watermelon;
-        }
-        image(fruitImage, currentFruit.x, currentFruit.y, 50, 50);
-  
-        // Check if the hippo collides with a fruit
-        if (
-          dist(me.x, me.y, currentFruit.x, currentFruit.y) <
-          size / 2 + 25
-        ) {
-      // Select a random sound from the array
-      let randomSound = crunchSounds[Math.floor(Math.random() * crunchSounds.length)];
-      // Play the randomly selected sound
-      randomSound.play();
-          // If collision happens, increase the count and remove the fruit
-          if (currentFruit.fruitType === "banana") {
-            bananaCount++;
-            console.log("Bananas collected: " + bananaCount);
-          } else if (currentFruit.fruitType === "watermelon") {
-            watermelonCount++;
-            console.log("Watermelons collected: " + watermelonCount);
-          }
-          shared.sharedFruits.splice(i, 1); // Remove the collected fruit from the array
-        }
-      }
-}
-
-function fruitGeneration() {
-
-    // Create random positions for the fruits (watermelon and banana)
-    let fruitPositions = new Set(); // To store unique grid positions
-    for (let i = 0; i < 20; i++) {
-      // Place 20 random fruits
-      let fruit;
-      let x, y;
-  
-      // Keep trying until we find a non-overlapping position
-      do {
-        x = Math.floor(random(1, screenWidth / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
-        y = Math.floor(random(1, screenHeight / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
-        fruit = { 
-          x, 
-          y, 
-          // type: random([banana, watermelon]), 
-          fruitType: random(["banana", "watermelon"]) 
-        };
-      } while (fruitPositions.has(`${x},${y}`)); // Check if the position is taken
-  
-      fruitPositions.add(`${x},${y}`); // Store the position
-  //    console.log(fruit);
-      fruits.push(fruit);
-      shared.sharedFruits.push(fruit);
-    }
-  //  console.log(fruitPositions);
-  //  console.log(shared.fruits);
-    console.log(shared.sharedFruits);
-
-}
-
 
 function displayTitleScreen() {
   generatePurpleNoiseBackground();
@@ -281,6 +113,40 @@ function generatePurpleNoiseBackground() {
   }
 }
 
+function setup() {
+  partyToggleInfo(true);
+
+  createCanvas(screenWidth, screenHeight);
+  background(248);
+
+  me.speed = 50; // Set the distance per key press (distance per step)
+
+  me.x = me.x || 975;
+  me.y = me.y || 975;
+
+  me.size = me.size || 50;
+
+  generateGreenNoiseBackground();
+
+  // Create random positions for the fruits (watermelon and banana)
+  let fruitPositions = new Set(); // To store unique grid positions
+  for (let i = 0; i < 20; i++) {
+    // Place 10 random fruits
+    let fruit;
+    let x, y;
+
+    // Keep trying until we find a non-overlapping position
+    do {
+      x = Math.floor(random(1, screenWidth / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
+      y = Math.floor(random(1, screenHeight / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
+      fruit = { x, y, type: random([banana, watermelon]) };
+    } while (fruitPositions.has(`${x},${y}`)); // Check if the position is taken
+
+    fruitPositions.add(`${x},${y}`); // Store the position
+    fruits.push(fruit);
+  }
+}
+
 // using the Perlin noise stuff from p5.js reference
 function generateGreenNoiseBackground() {
   background(138, 154, 91);
@@ -298,6 +164,96 @@ function generateGreenNoiseBackground() {
 
       circle(x, y, diameter);
     }
+  }
+}
+
+function draw() {
+  if (showTitleScreen) {
+    // Display the title screen
+    displayTitleScreen();
+  } else if (fruits.length === 0) {
+    // If all fruits are collected, display the game over screen
+    displayGameOverScreen();
+  } else {
+    // Game logic
+
+    // Keep updating the background with noise
+    generateGreenNoiseBackground();
+
+    // Draw the current hippo image at the current position
+    imageMode(CENTER);
+    image(hippo1, me.x, me.y, me.size, me.size);
+
+    // Constrain the hippo within the screen bounds
+    if (me.x < 0) {
+      me.x = 0 + me.size / 2;
+    }
+    if (me.x > screenWidth) {
+      me.x = screenWidth - me.size / 2;
+    }
+    if (me.y < 0) {
+      me.y = 0 + me.size / 2;
+    }
+    if (me.y > screenHeight) {
+      me.y = screenHeight - me.size / 2;
+    }
+
+    // Draw the fruits
+    for (let i = fruits.length - 1; i >= 0; i--) {
+      image(fruits[i].type, fruits[i].x, fruits[i].y, 50, 50); // Adjust size of fruits
+
+      // Check if the hippo collides with a fruit
+      if (
+        dist(me.x, me.y, fruits[i].x, fruits[i].y) <
+        me.size / 2 + 25
+      ) {
+    // Select a random sound from the array
+    let randomSound = crunchSounds[Math.floor(Math.random() * crunchSounds.length)];
+    // Play the randomly selected sound
+    randomSound.play();
+        // If collision happens, increase the count and remove the fruit
+        if (fruits[i].type === banana) {
+          bananaCount++;
+          console.log("Bananas collected: " + bananaCount);
+        } else if (fruits[i].type === watermelon) {
+          watermelonCount++;
+          console.log("Watermelons collected: " + watermelonCount);
+        }
+        fruits.splice(i, 1); // Remove the collected fruit from the array
+      }
+    }
+
+    // Clear the area where the score is being displayed
+    fill(250, 200, 100, 200); // Use the same color as the background
+    rect(10, 10, 185, 55, 5);
+
+    // Set the font for the fruit name (e.g., Grandstander)
+    textAlign(LEFT, TOP);
+    textFont("Grandstander");
+    textSize(20);
+    fill(53, 94, 59); // Set the color to black
+    text("Bananas:", 15, 15); // Display "Bananas"
+
+    // Set the font for the count (e.g., Grandstander)
+    textAlign(LEFT, TOP);
+    textFont("Grandstander");
+    textSize(20);
+    fill(104, 23, 100); // Set the color to black
+    text(bananaCount, 163, 15); // Display the banana count
+
+    // Set the font for the fruit name (e.g., Grandstander)
+    textAlign(LEFT, TOP);
+    textFont("Grandstander");
+    textSize(20);
+    fill(53, 94, 59); // Set the color to black
+    text("Watermelons:", 15, 42.5); // Display "Watermelons"
+
+    // Set the font for the count (e.g., Grandstander)
+    textAlign(LEFT, TOP);
+    textFont("Grandstander");
+    textSize(20);
+    fill(104, 23, 100); // Set the color to black
+    text(watermelonCount, 163, 42.5); // Display the watermelon count
   }
 }
 
@@ -364,29 +320,33 @@ function displayGameOverScreen() {
 }
 
 function keyPressed() {
+  /*   if (key === "r") {
+    // Reload the page to reset the environment fully
+    window.location.reload();
+  } */
 
   // Check which key was pressed and move the hippo one step
   if (keyCode === UP_ARROW || key === "w") {
     if (!keyPressedStatus.up) {
-      me.y -= speed;
+      me.y -= me.speed;
       keyPressedStatus.up = true;
     }
   }
   if (keyCode === DOWN_ARROW || key === "s") {
     if (!keyPressedStatus.down) {
-      me.y += speed;
+      me.y += me.speed;
       keyPressedStatus.down = true;
     }
   }
   if (keyCode === LEFT_ARROW || key === "a") {
     if (!keyPressedStatus.left) {
-      me.x -= speed;
+      me.x -= me.speed;
       keyPressedStatus.left = true;
     }
   }
   if (keyCode === RIGHT_ARROW || key === "d") {
     if (!keyPressedStatus.right) {
-      me.x += speed;
+      me.x += me.speed;
       keyPressedStatus.right = true;
     }
   }
@@ -426,7 +386,20 @@ function resetGame() {
   me.x = screenWidth - 25; // Initial position of the hippo
   me.y = screenHeight - 25;
   fruits = []; // Empty the fruits array
-  shared.sharedFruits = [];
 
-  fruitGeneration();
+  // Regenerate the fruits in random positions
+  let fruitPositions = new Set(); // To store unique grid positions
+  for (let i = 0; i < 20; i++) {
+    let fruit;
+    let x, y;
+
+    do {
+      x = Math.floor(random(1, screenWidth / 50)) * 50 - 25;
+      y = Math.floor(random(1, screenHeight / 50)) * 50 - 25;
+      fruit = { x, y, type: random([banana, watermelon]) };
+    } while (fruitPositions.has(`${x},${y}`));
+
+    fruitPositions.add(`${x},${y}`);
+    fruits.push(fruit);
+  }
 }
