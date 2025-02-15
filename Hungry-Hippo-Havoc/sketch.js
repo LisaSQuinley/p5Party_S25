@@ -4,17 +4,24 @@
 
 // Impacts_Splatter_Watermelon_001.wav by duckduckpony -- https://freesound.org/s/204024/ -- License: Attribution 4.0
 
+// global variable is watermelonCount/bananaCount, change those to me.watermelonCount/me.bananaCount
+
+
 let shared;
 let screenHeight = 1000;
 let screenWidth = 1000;
-let bananaCount = 0;
-let watermelonCount = 0;
+// let bananaCount = 0;
+// let watermelonCount = 0;
 let showTitleScreen = true;
+let gameStarted = false;
 let crunchSounds = [];
 let crunchFiles = ['Crunch-1.wav', 'Crunch-2.wav', 'Crunch-3.wav', 'Crunch-4.wav'];
 const speed = 50;
 const size = 50;
 let me, guests;
+//let hippoImg = "";
+let hippoImages = {};
+let hippoNames = ["hippo1", "hippo2", "hippo3", "hippo4"];
 
 let keyPressedStatus = {
   up: false,
@@ -38,9 +45,23 @@ function preload() {
       "Hungry Hippos",
       "Plot of Land"
     );
-  guests = partyLoadGuestShareds();
+  // Load all hippo images and store them in the hippoImages object
+  hippoNames.forEach(name => {
+    hippoImages[name] = loadImage(name + ".png"); // Assuming the image files are named "hippo1.png", "hippo2.png", etc.
+  });
+
+  guests = partyLoadGuestShareds(
+    {
+      hippoImg: "",
+      x: 975, 
+      y: 975, 
+      bananaCount: 0,
+      watermelonCount: 0,
+    }
+  );
   shared = partyLoadShared("shared", { 
     // fruits: [], 
+    gameStarted: false,
     sharedFruits: [],
     });
   me = partyLoadMyShared({ 
@@ -50,10 +71,10 @@ function preload() {
     bananaCount: 0,
     watermelonCount: 0
   });
-  hippo1 = loadImage("hippo-01.png");
-  hippo2 = loadImage("hippo-02.png");
-  hippo3 = loadImage("hippo-03.png");
-  hippo4 = loadImage("hippo-04.png");
+  hippo1 = loadImage("hippo1.png");
+  hippo2 = loadImage("hippo2.png");
+  hippo3 = loadImage("hippo3.png");
+  hippo4 = loadImage("hippo4.png");
   banana = loadImage("banana.png");
   watermelon = loadImage("watermelon.png");
   logo = loadImage("Logo.png");
@@ -78,16 +99,21 @@ function setup() {
 //  size = size || 50;
 
   generateGreenNoiseBackground();
-  if (partyIsHost()) {
-  // call generateFruits function
-  fruitGeneration();
-}
 
+  if (partyIsHost()) {
+    // Generate fruits if the user is the host
+    fruitGeneration();
+  }
+  me.hippoImg = random(["hippo1", "hippo2", "hippo3", "hippo4"]);
 }
 
 function draw() {
+  if (shared.gameStarted) {
+    // If the game has started, don't show the title screen
+    showTitleScreen = false;
+  }
+
   if (showTitleScreen) {
-    // Display the title screen
     displayTitleScreen();
   } else if (shared.sharedFruits.length === 0) {
     // If all fruits are collected, display the game over screen
@@ -100,7 +126,7 @@ function draw() {
 
     // Draw the current hippo image at the current position
     imageMode(CENTER);
-    image(hippo1, me.x, me.y, size, size);
+    image(hippoImages[me.hippoImg], me.x, me.y, size, size);
 
     // Constrain the hippo within the screen bounds
     if (me.x < 0) {
@@ -134,7 +160,7 @@ function draw() {
     textFont("Grandstander");
     textSize(20);
     fill(104, 23, 100); // Set the color to black
-    text(bananaCount, 163, 15); // Display the banana count
+    text(me.bananaCount, 163, 15); // Display the banana count
 
     // Set the font for the fruit name (e.g., Grandstander)
     textAlign(LEFT, TOP);
@@ -148,11 +174,12 @@ function draw() {
     textFont("Grandstander");
     textSize(20);
     fill(104, 23, 100); // Set the color to black
-    text(watermelonCount, 163, 42.5); // Display the watermelon count
+    text(me.watermelonCount, 163, 42.5); // Display the watermelon count
   }
 }
 
 function drawFruits() {
+  
       // Draw the fruits (no longer storing image inside the fruit object)
       for (let i = shared.sharedFruits.length - 1; i >= 0; i--) {
         const currentFruit = shared.sharedFruits[i];
@@ -176,11 +203,11 @@ function drawFruits() {
       randomSound.play();
           // If collision happens, increase the count and remove the fruit
           if (currentFruit.fruitType === "banana") {
-            bananaCount++;
-            console.log("Bananas collected: " + bananaCount);
+            me.bananaCount++;
+            console.log("Bananas collected: " + me.bananaCount);
           } else if (currentFruit.fruitType === "watermelon") {
-            watermelonCount++;
-            console.log("Watermelons collected: " + watermelonCount);
+            me.watermelonCount++;
+            console.log("Watermelons collected: " + me.watermelonCount);
           }
           shared.sharedFruits.splice(i, 1); // Remove the collected fruit from the array
         }
@@ -337,26 +364,96 @@ function displayGameOverScreen() {
 
   // Score display with text
   textSize(20);
-  text("Bananas: " + bananaCount, width / 2, height / 1.5);
-  text("Watermelons: " + watermelonCount, width / 2, height / 1.3);
-
-  // Display bananas as images underneath the count
-  let totalBananaWidth = bananaCount * 50 - 50; // Calculate total width for bananas
+  let startY = height / 3; // Start position for the first text
+  let spacing = 30; // Space between each text line
+  
+  // Display for yourself (me)
+  text("Bananas: " + me.bananaCount, width / 2, startY);
+  startY += spacing;  // Move down for the next text
+  text("Watermelons: " + me.watermelonCount, width / 2, startY);
+  startY += spacing;  // Move down for the next text
+  
+  // Display bananas as images for yourself (me)
+  let totalBananaWidth = me.bananaCount * 50 - 50; // Calculate total width for bananas
   let bananaStartX = (width - totalBananaWidth) / 2; // Calculate starting X for centered positioning
-  for (let i = 0; i < bananaCount; i++) {
+  let bananaStartY = startY; // Start positioning bananas below the text
+  
+  for (let i = 0; i < me.bananaCount; i++) {
+    let x = bananaStartX + i * 50; // Position bananas side by side
+    image(banana, x, bananaStartY, 50, 50); // Draw each banana image
+  }
+  startY = bananaStartY + 60; // Move down below the last banana image to make space for watermelons
+  
+  // Display watermelons as images for yourself (me)
+  let totalWatermelonWidth = me.watermelonCount * 50 - 50; // Calculate total width for watermelons
+  let watermelonStartX = (width - totalWatermelonWidth) / 2; // Calculate starting X for centered positioning
+  let watermelonStartY = startY; // Start positioning watermelons below the bananas
+  
+  for (let i = 0; i < me.watermelonCount; i++) {
+    let x = watermelonStartX + i * 50; // Position watermelons side by side
+    image(watermelon, x, watermelonStartY, 50, 50); // Draw each watermelon image
+  }
+  startY = watermelonStartY + 60; // Move down below the last watermelon image to make space for guests
+  
+  // Loop through guests and display their data, excluding yourself (me)
+  for (let j = 0; j < guests.length; j++) {
+    // Check if the current guest is "me" and skip if true
+    if (guests[j] === me) {
+      continue; // Skip "me" if it's part of the guests list
+    }
+  
+    // Display text for each guest
+    text("Bananas: " + guests[j].bananaCount, width / 2, startY);
+    startY += spacing;  // Move down for the next text
+    text("Watermelons: " + guests[j].watermelonCount, width / 2, startY);
+    startY += spacing;  // Move down for the next text
+  
+    // Display bananas as images for each guest
+    let totalGuestBananaWidth = guests[j].bananaCount * 50 - 50; // Calculate total width for guest bananas
+    let guestBananaStartX = (width - totalGuestBananaWidth) / 2; // Calculate starting X for centered positioning
+    let guestBananaStartY = startY; // Start positioning guest bananas below the text
+  
+    for (let i = 0; i < guests[j].bananaCount; i++) {
+      let x = guestBananaStartX + i * 50; // Position guest bananas side by side
+      image(banana, x, guestBananaStartY, 50, 50); // Draw each banana image
+    }
+    startY = guestBananaStartY + 60; // Move down below the last guest banana image to make space for watermelons
+  
+    // Display watermelons as images for each guest
+    let totalGuestWatermelonWidth = guests[j].watermelonCount * 50 - 50; // Calculate total width for guest watermelons
+    let guestWatermelonStartX = (width - totalGuestWatermelonWidth) / 2; // Calculate starting X for centered positioning
+    let guestWatermelonStartY = startY; // Start positioning guest watermelons below the bananas
+  
+    for (let i = 0; i < guests[j].watermelonCount; i++) {
+      let x = guestWatermelonStartX + i * 50; // Position guest watermelons side by side
+      image(watermelon, x, guestWatermelonStartY, 50, 50); // Draw each watermelon image
+    }
+    startY = guestWatermelonStartY + 60; // Move down below the last watermelon image for the next guest
+  }
+  
+  
+/*   text("Bananas: " + me.bananaCount, width / 2, height / 1.5);
+  text("Watermelons: " + me.watermelonCount, width / 2, height / 1.3);
+  text("Bananas: " + guests.bananaCount, width / 2, height / 1.5);
+  text("Watermelons: " + guests.watermelonCount, width / 2, height / 1.3); */
+
+/*   // Display bananas as images underneath the count
+  let totalBananaWidth = me.bananaCount * 50 - 50; // Calculate total width for bananas
+  let bananaStartX = (width - totalBananaWidth) / 2; // Calculate starting X for centered positioning
+  for (let i = 0; i < me.bananaCount; i++) {
     let x = bananaStartX + i * 50; // Position bananas side by side
     let y = height / 1.4; // Position below the "Bananas" count
     image(banana, x, y, 50, 50); // Draw each banana image
   }
 
   // Display watermelons as images underneath the count
-  let totalWatermelonWidth = watermelonCount * 50 - 50; // Calculate total width for watermelons
+  let totalWatermelonWidth = me.watermelonCount * 50 - 50; // Calculate total width for watermelons
   let watermelonStartX = (width - totalWatermelonWidth) / 2; // Calculate starting X for centered positioning
-  for (let i = 0; i < watermelonCount; i++) {
+  for (let i = 0; i < me.watermelonCount; i++) {
     let x = watermelonStartX + i * 50; // Position watermelons side by side
     let y = height / 1.2; // Position below the "Watermelons" count
     image(watermelon, x, y, 50, 50); // Draw each watermelon image
-  }
+  } */
 
   // Restart prompt
   textSize(25);
@@ -409,22 +506,43 @@ function keyReleased() {
 }
 
 function mousePressed() {
-  if (showTitleScreen) {
-    showTitleScreen = false; // Hide the title screen when the mouse is clicked
+  if (partyIsHost()) {
+    // If the user is the host, start the game when the mouse is clicked
+    showTitleScreen = false; // Hide the title screen for the host
+    shared.gameStarted = true; // Update shared state to indicate the game has started
+
+    // Notify all guests of the game start by updating their shared state
+    partyStoreShared(shared); // Save the updated shared state
   }
 
-  if (fruits.length === 0) {
-    // Reset the game when all fruits are collected and the Game Over screen is visible
-    resetGame();
+  // Check if the "Click to Play Again" area is clicked
+  if (shared.sharedFruits.length === 0) {
+    // Game Over, check if the mouse click is in the "Play Again" area
+    let playAgainAreaY = height / 1.1;
+    let playAgainAreaHeight = 30; // Height of the text
+    let playAgainAreaX1 = width / 2 - 150; // Left X boundary of the clickable area
+    let playAgainAreaX2 = width / 2 + 150; // Right X boundary of the clickable area
+    
+    // Check if mouse click is within the area of the "Play Again" button
+    if (mouseY > playAgainAreaY - playAgainAreaHeight / 2 &&
+        mouseY < playAgainAreaY + playAgainAreaHeight / 2 &&
+        mouseX > playAgainAreaX1 && mouseX < playAgainAreaX2) {
+      resetGame(); // Reset the game when clicked within this region
+    }
   }
 }
 
+
+
+
 function resetGame() {
   // Reset scores and position
-  bananaCount = 0;
-  watermelonCount = 0;
+  me.bananaCount = 0;
+  me.watermelonCount = 0;
   me.x = screenWidth - 25; // Initial position of the hippo
   me.y = screenHeight - 25;
+  guests.x = screenWidth - 25; // Initial position of the hippo
+  guests.y = screenHeight - 25;
   fruits = []; // Empty the fruits array
   shared.sharedFruits = [];
 
