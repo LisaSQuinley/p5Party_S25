@@ -1,4 +1,4 @@
-// https://editor.p5js.org/LisaSQuinley/sketches/J72QvfYCM
+// https://editor.p5js.org/LisaSQuinley/sketches/Q7REy5df0
 // Hippo Grazing which is a sketch based off the Hippo Grazing one I created previously
 // ChatGPT helped out with cleaning up a lot of my code
 
@@ -509,10 +509,6 @@ function displayGameOverScreen() {
 }
 
 
-
-
-
-
 function keyPressed() {
 
   // Check which key was pressed and move the hippo one step
@@ -587,17 +583,25 @@ function mousePressed() {
 
 
 
-
 function resetGame() {
-  // Reset scores and position
+  // Reset scores and positions for "me"
   me.bananaCount = 0;
   me.watermelonCount = 0;
   me.x = screenWidth - 25; // Initial position of the hippo
   me.y = screenHeight - 25;
-  guests.x = screenWidth - 25; // Initial position of the hippo
-  guests.y = screenHeight - 25;
-  fruits = []; // Empty the fruits array
+
+  // Reset scores and positions for each guest
+  for (let i = 0; i < guests.length; i++) {
+    guests[i].bananaCount = 0; // Reset guest banana count
+    guests[i].watermelonCount = 0; // Reset guest watermelon count
+    guests[i].x = screenWidth - 25; // Initial position of the guest's hippo
+    guests[i].y = screenHeight - 25;
+  }
+
+  // Clear the fruits array
+  fruits = [];
   shared.sharedFruits = [];
 
+  // Generate new fruits
   fruitGeneration();
 }
