@@ -190,7 +190,7 @@ function drawFruits() {
         else if (currentFruit.fruitType === "watermelon") {
           fruitImage = watermelon;
         }
-        image(fruitImage, currentFruit.x, currentFruit.y, 50, 50);
+        image(fruitImage, currentFruit.x, currentFruit.y, size, size);
   
         // Check if the hippo collides with a fruit
         if (
@@ -355,12 +355,12 @@ function displayGameOverScreen() {
   textFont("Grandstander");
   textSize(50);
   fill(255); // White text
-  text("Congratulations!", width / 2, height / 4);
+  text("Nom! Nom! Nom!", width / 2, height - 950);
 
   textFont("Grandstander");
   // Message text
   textSize(30);
-  text("You collected all the fruits!", width / 2, height / 2);
+  text("Thanks for feeding me!", width / 2, height - 900);
 
   // Score display with text
   textSize(20);
@@ -373,6 +373,13 @@ function displayGameOverScreen() {
   text("Watermelons: " + me.watermelonCount, width / 2, startY);
   startY += spacing;  // Move down for the next text
   
+  // Display hippo image for yourself (me)
+  let hippoStartX = width / 2 - 50; // Center the hippo horizontally
+  let hippoStartY = startY + 30;   // Position the hippo just below the score text
+  image(hippoImages[me.hippoImg], hippoStartX, hippoStartY, size, size);
+
+  startY = hippoStartY + 120; // Move down below the hippo image to make space for fruit images
+  
   // Display bananas as images for yourself (me)
   let totalBananaWidth = me.bananaCount * 50 - 50; // Calculate total width for bananas
   let bananaStartX = (width - totalBananaWidth) / 2; // Calculate starting X for centered positioning
@@ -380,7 +387,7 @@ function displayGameOverScreen() {
   
   for (let i = 0; i < me.bananaCount; i++) {
     let x = bananaStartX + i * 50; // Position bananas side by side
-    image(banana, x, bananaStartY, 50, 50); // Draw each banana image
+    image(banana, x, bananaStartY, size, size); // Draw each banana image
   }
   startY = bananaStartY + 60; // Move down below the last banana image to make space for watermelons
   
@@ -391,7 +398,7 @@ function displayGameOverScreen() {
   
   for (let i = 0; i < me.watermelonCount; i++) {
     let x = watermelonStartX + i * 50; // Position watermelons side by side
-    image(watermelon, x, watermelonStartY, 50, 50); // Draw each watermelon image
+    image(watermelon, x, watermelonStartY, size, size); // Draw each watermelon image
   }
   startY = watermelonStartY + 60; // Move down below the last watermelon image to make space for guests
   
@@ -408,6 +415,13 @@ function displayGameOverScreen() {
     text("Watermelons: " + guests[j].watermelonCount, width / 2, startY);
     startY += spacing;  // Move down for the next text
   
+    // Display hippo image for each guest
+    let guestHippoStartX = width / 2 - 50; // Center the hippo horizontally for each guest
+    let guestHippoStartY = startY + 30;   // Position the hippo just below the score text
+    image(hippoImages[guests[j].hippoImg], guestHippoStartX, guestHippoStartY, size, size); // Draw the guest hippo image
+
+    startY = guestHippoStartY + 120; // Move down below the hippo image to make space for fruit images
+  
     // Display bananas as images for each guest
     let totalGuestBananaWidth = guests[j].bananaCount * 50 - 50; // Calculate total width for guest bananas
     let guestBananaStartX = (width - totalGuestBananaWidth) / 2; // Calculate starting X for centered positioning
@@ -415,7 +429,7 @@ function displayGameOverScreen() {
   
     for (let i = 0; i < guests[j].bananaCount; i++) {
       let x = guestBananaStartX + i * 50; // Position guest bananas side by side
-      image(banana, x, guestBananaStartY, 50, 50); // Draw each banana image
+      image(banana, x, guestBananaStartY, size, size); // Draw each banana image
     }
     startY = guestBananaStartY + 60; // Move down below the last guest banana image to make space for watermelons
   
@@ -426,39 +440,16 @@ function displayGameOverScreen() {
   
     for (let i = 0; i < guests[j].watermelonCount; i++) {
       let x = guestWatermelonStartX + i * 50; // Position guest watermelons side by side
-      image(watermelon, x, guestWatermelonStartY, 50, 50); // Draw each watermelon image
+      image(watermelon, x, guestWatermelonStartY, size, size); // Draw each watermelon image
     }
     startY = guestWatermelonStartY + 60; // Move down below the last watermelon image for the next guest
   }
-  
-  
-/*   text("Bananas: " + me.bananaCount, width / 2, height / 1.5);
-  text("Watermelons: " + me.watermelonCount, width / 2, height / 1.3);
-  text("Bananas: " + guests.bananaCount, width / 2, height / 1.5);
-  text("Watermelons: " + guests.watermelonCount, width / 2, height / 1.3); */
-
-/*   // Display bananas as images underneath the count
-  let totalBananaWidth = me.bananaCount * 50 - 50; // Calculate total width for bananas
-  let bananaStartX = (width - totalBananaWidth) / 2; // Calculate starting X for centered positioning
-  for (let i = 0; i < me.bananaCount; i++) {
-    let x = bananaStartX + i * 50; // Position bananas side by side
-    let y = height / 1.4; // Position below the "Bananas" count
-    image(banana, x, y, 50, 50); // Draw each banana image
-  }
-
-  // Display watermelons as images underneath the count
-  let totalWatermelonWidth = me.watermelonCount * 50 - 50; // Calculate total width for watermelons
-  let watermelonStartX = (width - totalWatermelonWidth) / 2; // Calculate starting X for centered positioning
-  for (let i = 0; i < me.watermelonCount; i++) {
-    let x = watermelonStartX + i * 50; // Position watermelons side by side
-    let y = height / 1.2; // Position below the "Watermelons" count
-    image(watermelon, x, y, 50, 50); // Draw each watermelon image
-  } */
 
   // Restart prompt
   textSize(25);
   text("Click to Play Again", width / 2, height / 1.1);
 }
+
 
 function keyPressed() {
 
