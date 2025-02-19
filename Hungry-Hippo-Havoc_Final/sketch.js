@@ -1,5 +1,4 @@
-// https://editor.p5js.org/LisaSQuinley/sketches/Q7REy5df0
-// Hippo Grazing which is a sketch based off the Hippo Grazing one I created previously
+// https://editor.p5js.org/LisaSQuinley/sketches/mAHhlLh7l
 // ChatGPT helped out with cleaning up a lot of my code
 
 // Impacts_Splatter_Watermelon_001.wav by duckduckpony -- https://freesound.org/s/204024/ -- License: Attribution 4.0
@@ -567,8 +566,6 @@ function displayGameOverScreen() {
   textSize(25);
   text("Click to Play Again", width / 2, height - 100);
 }
-
-
 
 
 

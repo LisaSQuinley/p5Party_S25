@@ -119,12 +119,12 @@ function setup() {
   createCanvas(screenWidth, screenHeight);
   background(248);
 
-  me.speed = 50; // Set the distance per key press (distance per step)
+  shared.speed = 50; // Set the distance per key press (distance per step)
 
-  me.x = me.x || 975;
-  me.y = me.y || 975;
+  shared.x = shared.x || 975;
+  shared.y = shared.y || 975;
 
-  me.size = me.size || 50;
+  shared.size = shared.size || 50;
 
   generateGreenNoiseBackground();
 
@@ -182,20 +182,20 @@ function draw() {
 
     // Draw the current hippo image at the current position
     imageMode(CENTER);
-    image(hippo1, me.x, me.y, me.size, me.size);
+    image(hippo1, shared.x, shared.y, shared.size, shared.size);
 
     // Constrain the hippo within the screen bounds
-    if (me.x < 0) {
-      me.x = 0 + me.size / 2;
+    if (shared.x < 0) {
+      shared.x = 0 + shared.size / 2;
     }
-    if (me.x > screenWidth) {
-      me.x = screenWidth - me.size / 2;
+    if (shared.x > screenWidth) {
+      shared.x = screenWidth - shared.size / 2;
     }
-    if (me.y < 0) {
-      me.y = 0 + me.size / 2;
+    if (shared.y < 0) {
+      shared.y = 0 + shared.size / 2;
     }
-    if (me.y > screenHeight) {
-      me.y = screenHeight - me.size / 2;
+    if (shared.y > screenHeight) {
+      shared.y = screenHeight - shared.size / 2;
     }
 
     // Draw the fruits
@@ -204,8 +204,8 @@ function draw() {
 
       // Check if the hippo collides with a fruit
       if (
-        dist(me.x, me.y, fruits[i].x, fruits[i].y) <
-        me.size / 2 + 25
+        dist(shared.x, shared.y, fruits[i].x, fruits[i].y) <
+        shared.size / 2 + 25
       ) {
     // Select a random sound from the array
     let randomSound = crunchSounds[Math.floor(Math.random() * crunchSounds.length)];
@@ -328,25 +328,25 @@ function keyPressed() {
   // Check which key was pressed and move the hippo one step
   if (keyCode === UP_ARROW || key === "w") {
     if (!keyPressedStatus.up) {
-      me.y -= me.speed;
+      shared.y -= shared.speed;
       keyPressedStatus.up = true;
     }
   }
   if (keyCode === DOWN_ARROW || key === "s") {
     if (!keyPressedStatus.down) {
-      me.y += me.speed;
+      shared.y += shared.speed;
       keyPressedStatus.down = true;
     }
   }
   if (keyCode === LEFT_ARROW || key === "a") {
     if (!keyPressedStatus.left) {
-      me.x -= me.speed;
+      shared.x -= shared.speed;
       keyPressedStatus.left = true;
     }
   }
   if (keyCode === RIGHT_ARROW || key === "d") {
     if (!keyPressedStatus.right) {
-      me.x += me.speed;
+      shared.x += shared.speed;
       keyPressedStatus.right = true;
     }
   }
@@ -383,8 +383,8 @@ function resetGame() {
   // Reset scores and position
   bananaCount = 0;
   watermelonCount = 0;
-  me.x = screenWidth - 25; // Initial position of the hippo
-  me.y = screenHeight - 25;
+  shared.x = screenWidth - 25; // Initial position of the hippo
+  shared.y = screenHeight - 25;
   fruits = []; // Empty the fruits array
 
   // Regenerate the fruits in random positions
