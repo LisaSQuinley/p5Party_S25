@@ -4,8 +4,6 @@
 
 // Impacts_Splatter_Watermelon_001.wav by duckduckpony -- https://freesound.org/s/204024/ -- License: Attribution 4.0
 
-// global variable is watermelonCount/bananaCount, change those to me.watermelonCount/me.bananaCount
-
 
 let shared;
 let screenHeight = 1000;
@@ -86,7 +84,10 @@ function preload() {
   hippo13 = loadImage("hippo13.png");
   hippo14 = loadImage("hippo14.png");
   banana = loadImage("banana.png");
+  banana1 = loadImage("banana1.png");
   watermelon = loadImage("watermelon.png");
+  watermelon1 = loadImage("watermelon1.png");
+  watermelon2 = loadImage("watermelon2.png");
   logo = loadImage("Logo.png");
   icon = loadImage("Icon.png");
   start = loadImage("Start.png");
@@ -325,6 +326,25 @@ function generatePurpleNoiseBackground() {
   }
 }
 
+function generateBlackNoiseBackground() {
+  background(0);
+  noStroke();
+  fill(75);
+
+  // Loop through x and y coordinates, at increments set by gap
+  for (let x = gap / 3; x < width; x += gap) {
+    for (let y = gap / 3; y < height; y += gap) {
+      // Calculate noise value using scaled and offset coordinates
+      let noiseValue = noise((x + offset) * xScale, (y + offset) * yScale);
+
+      // Reduce the size of the dots by multiplying by a smaller factor
+      let diameter = noiseValue * gap * 0.5; // Adjust this factor as needed
+
+      circle(x, y, diameter);
+    }
+  }
+}
+
 // using the Perlin noise stuff from p5.js reference
 function generateGreenNoiseBackground() {
   background(138, 154, 91);
@@ -364,62 +384,109 @@ function generateDarkGreenNoiseBackground() {
   }
 }
 
-function displayGameOverScreen() {
-  generateDarkGreenNoiseBackground();
+function generateDarkRedNoiseBackground() {
+  background(118, 0, 23);
+  noStroke();
+  fill(237, 24, 72);
 
-  // Calculate total fruits for "me" (bananas + watermelons)
+  // Loop through x and y coordinates, at increments set by gap
+  for (let x = gap / 3; x < width; x += gap) {
+    for (let y = gap / 3; y < height; y += gap) {
+      // Calculate noise value using scaled and offset coordinates
+      let noiseValue = noise((x + offset) * xScale, (y + offset) * yScale);
+
+      // Reduce the size of the dots by multiplying by a smaller factor
+      let diameter = noiseValue * gap * 0.5; // Adjust this factor as needed
+
+      circle(x, y, diameter);
+    }
+  }
+}
+
+function generateDarkYellowNoiseBackground() {
+  background(242, 148, 32);
+  noStroke();
+  fill(255, 194, 14);
+
+  // Loop through x and y coordinates, at increments set by gap
+  for (let x = gap / 3; x < width; x += gap) {
+    for (let y = gap / 3; y < height; y += gap) {
+      // Calculate noise value using scaled and offset coordinates
+      let noiseValue = noise((x + offset) * xScale, (y + offset) * yScale);
+
+      // Reduce the size of the dots by multiplying by a smaller factor
+      let diameter = noiseValue * gap * 0.5; // Adjust this factor as needed
+
+      circle(x, y, diameter);
+    }
+  }
+}
+
+
+
+function displayGameOverScreen() {
   let meTotalFruits = me.bananaCount + me.watermelonCount;
 
-  // Flags to track if "me" is hungry, a winner, or the middle player
+  let isMeStarving = meTotalFruits === 0; // Ensure starving is always 0
   let isMeHungry = false;
-  let isMeWinner = true;
+  let isMeWinner = false;
   let isMiddlePlayer = false;
-  let maxFruits = meTotalFruits; // Start by assuming "me" has the most fruits
-  let minFruits = meTotalFruits; // Assume "me" also has the least fruits
 
-  // Track the max and min fruits for anyone in the game (including guests)
+  let maxFruits = meTotalFruits;
+  let minFruits = isMeStarving ? Infinity : meTotalFruits; // Set to Infinity so we can properly track min
+
+  // Determine max and min fruits across all players
   for (let j = 0; j < guests.length; j++) {
     let guestTotalFruits = guests[j].bananaCount + guests[j].watermelonCount;
+    
     if (guestTotalFruits > maxFruits) {
-      maxFruits = guestTotalFruits; // Found someone with more fruits than "me"
-      isMeWinner = false; // "Me" is not the winner
+      maxFruits = guestTotalFruits;
     }
-    if (guestTotalFruits < minFruits) {
-      minFruits = guestTotalFruits; // Found someone with fewer fruits than "me"
+    
+    if (guestTotalFruits < minFruits && guestTotalFruits > 0) { // Ignore 0, since that's already marked as starving
+      minFruits = guestTotalFruits;
     }
   }
 
-  // Determine if "me" is the middle player: "me" is neither the winner nor the hungriest
-  if (meTotalFruits > minFruits && meTotalFruits < maxFruits) {
-    isMiddlePlayer = true;
+  // Assign roles based on fruit count
+  if (!isMeStarving) {
+    if (meTotalFruits === maxFruits) {
+      isMeWinner = true;
+    } else if (meTotalFruits === minFruits) {
+      isMeHungry = true;
+    } else {
+      isMiddlePlayer = true;
+    }
   }
 
-  // Determine if "me" is the hungriest (has the least fruits)
-  if (meTotalFruits === minFruits) {
-    isMeHungry = true;
+  // **Generate background based on classification**
+  if (isMeWinner) {
+    generateDarkGreenNoiseBackground();
+  } else if (isMeHungry) {
+    generateDarkRedNoiseBackground();
+  } else if (isMiddlePlayer) {
+    generateDarkYellowNoiseBackground();
+  } else if (isMeStarving) {
+    generateBlackNoiseBackground();
   }
 
-  // Set the appropriate title based on fruit count (Winner, Hungry, or Middle)
-  let title;
+  // **Title and Message based on classification**
+  let title, message;
   if (isMeWinner) {
     title = "Nom! Nom! Nom!";
+    message = "Thanks for feeding me!";
   } else if (isMeHungry) {
     title = "*Grumbling*...*Growling*";
-  } else if (isMiddlePlayer) {
-    title = "That was a good appetizer."; // Middle player
-  }
-
-  // Set the appropriate message based on "me's" fruit count (Winner, Hungry, or Middle)
-  let message;
-  if (isMeHungry) {
     message = "I'm still hungry!";
-  } else if (isMeWinner) {
-    message = "Thanks for feeding me!";
   } else if (isMiddlePlayer) {
-    message = "Is there anything else to eat?"; // Middle player
+    title = "That was a good appetizer.";
+    message = "Is there anything else to eat?";
+  } else if (isMeStarving) {
+    title = "I'm famished!";
+    message = "It's ok, now I can fit into my tutu!";
   }
 
-  // Title text
+  // **Display Title**
   textAlign(CENTER, CENTER);
   textStyle(BOLD);
   textFont("Grandstander");
@@ -427,93 +494,82 @@ function displayGameOverScreen() {
   fill(251, 240, 179);
   text(title, width / 2, height - 900);
 
-  // Message text (Updated based on fruit count)
+  // **Display Message**
   textFont("Grandstander");
   textSize(30);
   text(message, width / 2, height - 850);
 
-  // Score display with text (Bananas and Watermelons removed)
-  let startY = height - 775; // Start position for the first hippo, 100px below the "Thanks for feeding me!" text
-  let spacing = 30; // Space between each text
+  // **Display Hippo and Fruits**
+  let startY = height - 775;
+  let size = 50; // Assuming `size` is defined elsewhere
 
-  // Display hippo image for yourself (me)
-  let hippoStartX = width / 2 - 30; // Center the hippo horizontally
-  let hippoStartY = startY;   // Position the hippo just below the "Thanks for feeding me!" text
+  // Display "Me" Hippo
+  let hippoStartX = width / 2 - 30;
+  let hippoStartY = startY;
   image(hippoImages[me.hippoImg], hippoStartX, hippoStartY, size, size);
 
-  // Add "Me" text next to the hippo (right side)
   textAlign(LEFT, CENTER);
   textSize(25);
   fill(251, 240, 179);
-  text("Me", hippoStartX + size - 10, hippoStartY); // Position the "Me" text just to the right of the hippo
+  text("Me", hippoStartX + size - 10, hippoStartY);
 
-  // Move down to the next line to avoid overlap with the "Me" text
-  startY = hippoStartY + size; // Make sure fruits are below the hippo
-  
-  // Display bananas as images for yourself (me), closer to the hippo
-  let totalBananaWidth = me.bananaCount * 50 - 50; // Calculate total width for bananas
-  let bananaStartX = (width - totalBananaWidth) / 2; // Calculate starting X for centered positioning
-  let bananaStartY = startY; // Start positioning bananas just below the hippo
-  
+  startY = hippoStartY + size;
+
+  // **Display "Me" Bananas**
+  let bananaStartX = (width - (me.bananaCount * 50 - 50)) / 2;
+  let bananaStartY = startY;
   for (let i = 0; i < me.bananaCount; i++) {
-    let x = bananaStartX + i * 50; // Position bananas side by side
-    image(banana, x, bananaStartY, size, size); // Draw each banana image
+    let x = bananaStartX + i * 50;
+    image(banana, x, bananaStartY, size, size);
   }
-  startY = bananaStartY + 40; // Move down below the last banana image to make space for watermelons
-  
-  // Display watermelons as images for yourself (me), closer to the bananas
-  let totalWatermelonWidth = me.watermelonCount * 50 - 50; // Calculate total width for watermelons
-  let watermelonStartX = (width - totalWatermelonWidth) / 2; // Calculate starting X for centered positioning
-  let watermelonStartY = startY; // Start positioning watermelons just below the bananas
-  
+  startY = bananaStartY + 40;
+
+  // **Display "Me" Watermelons**
+  let watermelonStartX = (width - (me.watermelonCount * 50 - 50)) / 2;
+  let watermelonStartY = startY;
   for (let i = 0; i < me.watermelonCount; i++) {
-    let x = watermelonStartX + i * 50; // Position watermelons side by side
-    image(watermelon, x, watermelonStartY, size, size); // Draw each watermelon image
+    let x = watermelonStartX + i * 50;
+    image(watermelon, x, watermelonStartY, size, size);
   }
-  startY = watermelonStartY + 40; // Move down below the last watermelon image to make space for guests
-  
-  // Loop through guests and display their data, excluding yourself (me)
+  startY = watermelonStartY + 40;
+
+  // **Display Guests**
   for (let j = 0; j < guests.length; j++) {
-    // Check if the current guest is "me" and skip if true
-    if (guests[j] === me) {
-      continue; // Skip "me" if it's part of the guests list
-    }
-  
-    // Display hippo image for each guest
-    let guestHippoStartX = width / 2; // Center the hippo horizontally for each guest
-    let guestHippoStartY = startY + 40;   // Position the hippo just below the score text
-    image(hippoImages[guests[j].hippoImg], guestHippoStartX, guestHippoStartY, size, size); // Draw the guest hippo image
+    if (guests[j] === me) continue;
 
-    startY = guestHippoStartY + 50; // Move down below the hippo image to make space for fruit images
-  
-    // Display bananas as images for each guest, closer to the hippo
-    let totalGuestBananaWidth = guests[j].bananaCount * 50 - 50; // Calculate total width for guest bananas
-    let guestBananaStartX = (width - totalGuestBananaWidth) / 2; // Calculate starting X for centered positioning
-    let guestBananaStartY = startY; // Start positioning guest bananas just below the hippo
-  
+    let guestHippoStartX = width / 2;
+    let guestHippoStartY = startY + 40;
+    image(hippoImages[guests[j].hippoImg], guestHippoStartX, guestHippoStartY, size, size);
+
+    startY = guestHippoStartY + 50;
+
+    // **Guest Bananas**
+    let guestBananaStartX = (width - (guests[j].bananaCount * 50 - 50)) / 2;
+    let guestBananaStartY = startY;
     for (let i = 0; i < guests[j].bananaCount; i++) {
-      let x = guestBananaStartX + i * 50; // Position guest bananas side by side
-      image(banana, x, guestBananaStartY, size, size); // Draw each banana image
+      let x = guestBananaStartX + i * 50;
+      image(banana, x, guestBananaStartY, size, size);
     }
-    startY = guestBananaStartY + 40; // Move down below the last guest banana image to make space for watermelons
-  
-    // Display watermelons as images for each guest, closer to the bananas
-    let totalGuestWatermelonWidth = guests[j].watermelonCount * 50 - 50; // Calculate total width for guest watermelons
-    let guestWatermelonStartX = (width - totalGuestWatermelonWidth) / 2; // Calculate starting X for centered positioning
-    let guestWatermelonStartY = startY; // Start positioning guest watermelons just below the bananas
-  
+    startY = guestBananaStartY + 40;
+
+    // **Guest Watermelons**
+    let guestWatermelonStartX = (width - (guests[j].watermelonCount * 50 - 50)) / 2;
+    let guestWatermelonStartY = startY;
     for (let i = 0; i < guests[j].watermelonCount; i++) {
-      let x = guestWatermelonStartX + i * 50; // Position guest watermelons side by side
-      image(watermelon, x, guestWatermelonStartY, size, size); // Draw each watermelon image
+      let x = guestWatermelonStartX + i * 50;
+      image(watermelon, x, guestWatermelonStartY, size, size);
     }
-    startY = guestWatermelonStartY + 40; // Move down below the last watermelon image for the next guest
+    startY = guestWatermelonStartY + 40;
   }
 
-  // Restart prompt
+  // **Restart Prompt**
   textAlign(CENTER, CENTER);
   textSize(25);
   text("Click to Play Again", width / 2, height - 100);
 }
+
+
+
 
 
 function keyPressed() {
