@@ -3,7 +3,6 @@
 
 // Impacts_Splatter_Watermelon_001.wav by duckduckpony -- https://freesound.org/s/204024/ -- License: Attribution 4.0
 
-
 let shared;
 let screenHeight = 1000;
 let screenWidth = 1000;
@@ -12,13 +11,33 @@ let screenWidth = 1000;
 let showTitleScreen = true;
 let gameStarted = false;
 let crunchSounds = [];
-let crunchFiles = ['Crunch-1.wav', 'Crunch-2.wav', 'Crunch-3.wav', 'Crunch-4.wav'];
+let crunchFiles = [
+  "Crunch-1.wav",
+  "Crunch-2.wav",
+  "Crunch-3.wav",
+  "Crunch-4.wav",
+];
 const speed = 50;
 const size = 50;
 let me, guests;
 //let hippoImg = "";
 let hippoImages = {};
-let hippoNames = ["hippo1", "hippo2", "hippo3", "hippo4", "hippo5", "hippo6", "hippo7", "hippo8", "hippo9", "hippo10", "hippo11", "hippo12", "hippo13", "hippo14"];
+let hippoNames = [
+  "hippo1",
+  "hippo2",
+  "hippo3",
+  "hippo4",
+  "hippo5",
+  "hippo6",
+  "hippo7",
+  "hippo8",
+  "hippo9",
+  "hippo10",
+  "hippo11",
+  "hippo12",
+  "hippo13",
+  "hippo14",
+];
 
 let keyPressedStatus = {
   up: false,
@@ -33,40 +52,34 @@ let yScale = 0.02;
 let gap = 10; // Set a fixed gap value
 let offset = 0; // Set a fixed offset value
 
- let fruits = [];
+let fruits = [];
 
 function preload() {
-    // partyConnect(server, appName, [roomName], [callback])
-    partyConnect(
-      "wss://demoserver.p5party.org",
-      "Hungry Hippos",
-      "Plot of Land"
-    );
+  // partyConnect(server, appName, [roomName], [callback])
+  partyConnect("wss://demoserver.p5party.org", "Hungry Hippos", "Plot of Land");
   // Load all hippo images and store them in the hippoImages object
-  hippoNames.forEach(name => {
+  hippoNames.forEach((name) => {
     hippoImages[name] = loadImage(name + ".png"); // Assuming the image files are named "hippo1.png", "hippo2.png", etc.
   });
 
-  guests = partyLoadGuestShareds(
-    {
-      hippoImg: "",
-      x: 975, 
-      y: 975, 
-      bananaCount: 0,
-      watermelonCount: 0,
-    }
-  );
-  shared = partyLoadShared("shared", { 
-    // fruits: [], 
+  guests = partyLoadGuestShareds({
+    hippoImg: "",
+    x: 975,
+    y: 975,
+    bananaCount: 0,
+    watermelonCount: 0,
+  });
+  shared = partyLoadShared("shared", {
+    // fruits: [],
     gameStarted: false,
     sharedFruits: [],
-    });
-  me = partyLoadMyShared({ 
+  });
+  me = partyLoadMyShared({
     hippoImg: "",
-    x: 975, 
-    y: 975, 
+    x: 975,
+    y: 975,
     bananaCount: 0,
-    watermelonCount: 0
+    watermelonCount: 0,
   });
   hippo1 = loadImage("hippo1.png");
   hippo2 = loadImage("hippo2.png");
@@ -96,17 +109,16 @@ function preload() {
   }
 }
 
-
 function setup() {
   partyToggleInfo(true);
 
   createCanvas(screenWidth, screenHeight);
   background(248);
 
-//  speed = 50; // Set the distance per key press (distance per step)
-//  me.x = me.x || 975;
-//  me.y = me.y || 975;
-//  size = size || 50;
+  //  speed = 50; // Set the distance per key press (distance per step)
+  //  me.x = me.x || 975;
+  //  me.y = me.y || 975;
+  //  size = size || 50;
 
   generateGreenNoiseBackground();
 
@@ -114,7 +126,22 @@ function setup() {
     // Generate fruits if the user is the host
     fruitGeneration();
   }
-  me.hippoImg = random(["hippo1", "hippo2", "hippo3", "hippo4", "hippo5", "hippo6", "hippo7", "hippo8", "hippo9", "hippo10", "hippo11", "hippo12", "hippo13", "hippo14"]);
+  me.hippoImg = random([
+    "hippo1",
+    "hippo2",
+    "hippo3",
+    "hippo4",
+    "hippo5",
+    "hippo6",
+    "hippo7",
+    "hippo8",
+    "hippo9",
+    "hippo10",
+    "hippo11",
+    "hippo12",
+    "hippo13",
+    "hippo14",
+  ]);
 }
 
 function draw() {
@@ -159,7 +186,7 @@ function draw() {
     let ellipseY = 60; // Y position of the ellipse
     let ellipseWidth = 200; // Width of the ellipse
     let ellipseHeight = 100; // Height of the ellipse
-    
+
     fill(250, 200, 100); // Use the same color as the background for the ellipse
     noStroke(); // No border around the ellipse
     ellipse(ellipseX, ellipseY, ellipseWidth, ellipseHeight); // Draw the ellipse
@@ -194,73 +221,66 @@ function draw() {
 }
 
 function drawFruits() {
-  
-      // Draw the fruits (no longer storing image inside the fruit object)
-      for (let i = shared.sharedFruits.length - 1; i >= 0; i--) {
-        const currentFruit = shared.sharedFruits[i];
-        let fruitImage
-        if (currentFruit.fruitType === "banana") {
-          fruitImage = banana;
-        }
-        else if (currentFruit.fruitType === "watermelon") {
-          fruitImage = watermelon;
-        }
-        image(fruitImage, currentFruit.x, currentFruit.y, size, size);
-  
-        // Check if the hippo collides with a fruit
-        if (
-          dist(me.x, me.y, currentFruit.x, currentFruit.y) <
-          size / 2 + 25
-        ) {
+  // Draw the fruits (no longer storing image inside the fruit object)
+  for (let i = shared.sharedFruits.length - 1; i >= 0; i--) {
+    const currentFruit = shared.sharedFruits[i];
+    let fruitImage;
+    if (currentFruit.fruitType === "banana") {
+      fruitImage = banana;
+    } else if (currentFruit.fruitType === "watermelon") {
+      fruitImage = watermelon;
+    }
+    image(fruitImage, currentFruit.x, currentFruit.y, size, size);
+
+    // Check if the hippo collides with a fruit
+    if (dist(me.x, me.y, currentFruit.x, currentFruit.y) < size / 2 + 25) {
       // Select a random sound from the array
-      let randomSound = crunchSounds[Math.floor(Math.random() * crunchSounds.length)];
+      let randomSound =
+        crunchSounds[Math.floor(Math.random() * crunchSounds.length)];
       // Play the randomly selected sound
       randomSound.play();
-          // If collision happens, increase the count and remove the fruit
-          if (currentFruit.fruitType === "banana") {
-            me.bananaCount++;
-            console.log("Bananas collected: " + me.bananaCount);
-          } else if (currentFruit.fruitType === "watermelon") {
-            me.watermelonCount++;
-            console.log("Watermelons collected: " + me.watermelonCount);
-          }
-          shared.sharedFruits.splice(i, 1); // Remove the collected fruit from the array
-        }
+      // If collision happens, increase the count and remove the fruit
+      if (currentFruit.fruitType === "banana") {
+        me.bananaCount++;
+        console.log("Bananas collected: " + me.bananaCount);
+      } else if (currentFruit.fruitType === "watermelon") {
+        me.watermelonCount++;
+        console.log("Watermelons collected: " + me.watermelonCount);
       }
+      shared.sharedFruits.splice(i, 1); // Remove the collected fruit from the array
+    }
+  }
 }
 
 function fruitGeneration() {
+  // Create random positions for the fruits (watermelon and banana)
+  let fruitPositions = new Set(); // To store unique grid positions
+  for (let i = 0; i < 20; i++) {
+    // Place 20 random fruits
+    let fruit;
+    let x, y;
 
-    // Create random positions for the fruits (watermelon and banana)
-    let fruitPositions = new Set(); // To store unique grid positions
-    for (let i = 0; i < 20; i++) {
-      // Place 20 random fruits
-      let fruit;
-      let x, y;
-  
-      // Keep trying until we find a non-overlapping position
-      do {
-        x = Math.floor(random(1, screenWidth / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
-        y = Math.floor(random(1, screenHeight / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
-        fruit = { 
-          x, 
-          y, 
-          // type: random([banana, watermelon]), 
-          fruitType: random(["banana", "watermelon"]) 
-        };
-      } while (fruitPositions.has(`${x},${y}`)); // Check if the position is taken
-  
-      fruitPositions.add(`${x},${y}`); // Store the position
-  //    console.log(fruit);
-      fruits.push(fruit);
-      shared.sharedFruits.push(fruit);
-    }
+    // Keep trying until we find a non-overlapping position
+    do {
+      x = Math.floor(random(1, screenWidth / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
+      y = Math.floor(random(1, screenHeight / 50)) * 50 - 25; // Snap to 50px grid, but need to offset by half the size of the fruit
+      fruit = {
+        x,
+        y,
+        // type: random([banana, watermelon]),
+        fruitType: random(["banana", "watermelon"]),
+      };
+    } while (fruitPositions.has(`${x},${y}`)); // Check if the position is taken
+
+    fruitPositions.add(`${x},${y}`); // Store the position
+    //    console.log(fruit);
+    fruits.push(fruit);
+    shared.sharedFruits.push(fruit);
+  }
   //  console.log(fruitPositions);
   //  console.log(shared.fruits);
-    console.log(shared.sharedFruits);
-
+  console.log(shared.sharedFruits);
 }
-
 
 function displayTitleScreen() {
   generatePurpleNoiseBackground();
@@ -296,8 +316,7 @@ so that I can chomp, chomp, chomp!
 The more fruit I munch, the happier my tummy will be! 
 But watch out! There are other hippos who are just as hungry 
 and they’re racing to snatch up the fruit too!`;
-text(instructionText, 75, 750);
-
+  text(instructionText, 75, 750);
 
   //push(); // Begin a new drawing state
   //translate(0, 0); // Move the starting point for the text
@@ -421,8 +440,6 @@ function generateDarkYellowNoiseBackground() {
   }
 }
 
-
-
 function displayGameOverScreen() {
   let meTotalFruits = me.bananaCount + me.watermelonCount;
 
@@ -437,12 +454,13 @@ function displayGameOverScreen() {
   // Determine max and min fruits across all players
   for (let j = 0; j < guests.length; j++) {
     let guestTotalFruits = guests[j].bananaCount + guests[j].watermelonCount;
-    
+
     if (guestTotalFruits > maxFruits) {
       maxFruits = guestTotalFruits;
     }
-    
-    if (guestTotalFruits < minFruits && guestTotalFruits > 0) { // Ignore 0, since that's already marked as starving
+
+    if (guestTotalFruits < minFruits && guestTotalFruits > 0) {
+      // Ignore 0, since that's already marked as starving
       minFruits = guestTotalFruits;
     }
   }
@@ -538,7 +556,13 @@ function displayGameOverScreen() {
 
     let guestHippoStartX = width / 2;
     let guestHippoStartY = startY + 40;
-    image(hippoImages[guests[j].hippoImg], guestHippoStartX, guestHippoStartY, size, size);
+    image(
+      hippoImages[guests[j].hippoImg],
+      guestHippoStartX,
+      guestHippoStartY,
+      size,
+      size
+    );
 
     startY = guestHippoStartY + 50;
 
@@ -552,7 +576,8 @@ function displayGameOverScreen() {
     startY = guestBananaStartY + 40;
 
     // **Guest Watermelons**
-    let guestWatermelonStartX = (width - (guests[j].watermelonCount * 50 - 50)) / 2;
+    let guestWatermelonStartX =
+      (width - (guests[j].watermelonCount * 50 - 50)) / 2;
     let guestWatermelonStartY = startY;
     for (let i = 0; i < guests[j].watermelonCount; i++) {
       let x = guestWatermelonStartX + i * 50;
@@ -567,10 +592,7 @@ function displayGameOverScreen() {
   text("Click to Play Again", width / 2, height - 100);
 }
 
-
-
 function keyPressed() {
-
   // Check which key was pressed and move the hippo one step
   if (keyCode === UP_ARROW || key === "w") {
     if (!keyPressedStatus.up) {
@@ -631,17 +653,18 @@ function mousePressed() {
     let playAgainAreaHeight = 30; // Height of the text
     let playAgainAreaX1 = width / 2 - 150; // Left X boundary of the clickable area
     let playAgainAreaX2 = width / 2 + 150; // Right X boundary of the clickable area
-    
+
     // Check if mouse click is within the area of the "Play Again" button
-    if (mouseY > playAgainAreaY - playAgainAreaHeight / 2 &&
-        mouseY < playAgainAreaY + playAgainAreaHeight / 2 &&
-        mouseX > playAgainAreaX1 && mouseX < playAgainAreaX2) {
+    if (
+      mouseY > playAgainAreaY - playAgainAreaHeight / 2 &&
+      mouseY < playAgainAreaY + playAgainAreaHeight / 2 &&
+      mouseX > playAgainAreaX1 &&
+      mouseX < playAgainAreaX2
+    ) {
       resetGame(); // Reset the game when clicked within this region
     }
   }
 }
-
-
 
 function resetGame() {
   // Reset scores and positions for "me"
